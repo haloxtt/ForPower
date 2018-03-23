@@ -1,0 +1,54 @@
+1。tomcat和class中的jar包加载顺序。
+	1.$java_home/lib目录下的java核心api。
+	2.$java_home/lib/ext 目录下的java拓展包。
+	3.java -classpath/-Djava.class.path  所指的目录下的类与jar包。
+	4.$CATALINA_HOME/common目录下按照文件夹的顺序从上往下依次加载。
+	5.$CATALINA_HOME/server目录下按照文件夹的顺序从上往下依次加载。
+	6.$CATALINA_BASE/shared目录下按照文件夹的顺序从上往下依次加载。
+	7.项目的路径/WEB-INF/classes下的class文件。
+	8.项目路径下的/WEB-INF/lib下的jar文件。
+	在同一个文件夹下，jar包是按顺序从上往下依次加载的。
+	由ClassLoader的双亲委托模式加载机制可知，假设两个包名和类名完全相同的class文件不在同一个jar包，
+	如果一个class文件已经被加载到java虚拟机里了，那么后面的相同的class文件就不会被加载了。
+	值得注意的是：tomcat按照上诉顺序依次加载资源，当后加载的资源与之前加载的资源相重时，后加载的资源会继续加载并将之前的资源覆盖。
+ 2.APP（web同理）优化时的思路应当是抓包看控制台，看时间花在哪个节点再对症下药，如果是后台数据库查询用时过多，可以增加对应的索引，JPA添加索引的方式为：
+ @Table(name="tab_developer",indexes={@Index(columnList="username")})
+ 根据注解，将会给username字段加上索引。
+ 3.BigDecimal的那些坑爹事。
+  3.1尽量避免传递double类型，有可能的话，尽量使用int和string类型。（否则可能会有很多坑爹的问题）。
+  3.2做乘除计算时，一定要设置精度和保留小数点位数。
+  3.3BigDecimal计算时，单独放到try catch块里。
+  4.前台页面取数据时不能想当然，如果出现取不到的情况，首先应当分析数据结构，看数据是否存在然后应当从哪一层取，具体操作是：
+	4.1从前台控制台的Network栏下查找到对应的请求，并查看返回数据
+	4.2复制返回的JSON串
+	4.3再转到Sources栏下，点击Snippets，新建var a ={JSON串}
+	4.4点击下方的{}，格式转换之后，结构就一目了然了。
+5.linux打包war包命令 
+    jar -cvf  包名.war  文件名
+6.linux给自己权限
+   chmod 775 *
+
+next() 与 nextLine() 区别
+next():
+
+1、一定要读取到有效字符后才可以结束输入。
+2、对输入有效字符之前遇到的空白，next() 方法会自动将其去掉。
+3、只有输入有效字符后才将其后面输入的空白作为分隔符或者结束符。
+next() 不能得到带有空格的字符串。
+nextLine()：
+
+1、以Enter为结束符,也就是说 nextLine()方法返回的是输入回车之前的所有字符。
+2、可以获得空白。
+
+计算运算时间：
+如方法一：
+long startTime = System.currentTimeMillis(); //获取开始时间
+doSomething(); //测试的代码段
+long endTime = System.currentTimeMillis(); //获取结束时间
+System.out.println("程序运行时间：" + (endTime - startTime) + "ms"); //输出程序运行时间
+
+第二种方法是以纳秒为单位计算的(使用System的nanoTime()方法)：
+long startTime=System.nanoTime(); //获取开始时间
+doSomeThing(); //测试的代码段
+long endTime=System.nanoTime(); //获取结束时间
+System.out.println("程序运行时间： "+(endTime-startTime)+"ns");

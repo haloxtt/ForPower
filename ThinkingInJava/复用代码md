@@ -1,0 +1,80 @@
+# 复用代码
+
+## java多态方法调用顺序问题
+
++ 使用父类类型的引用指向子类的对象，该引用调用的师父类中定义的方法和变量，变量不能被重写（覆盖）；如果子类中重写了父类中的一个方法，那么在调用这个方法的时候，将会调用子类中的这个方法；
+注意特殊情况，如果该父类引用所调用的方法参数列表未定义，就调用该父类的父类中查找，如果还没找到就强制向上类型转换参数列表中的参数类型，具体优先级高到低依次如下：this.show(O)、super.show(O)、this.show((super)O)、super.show((super)O)。
+
+## 继承初始化顺序问题
+
++ 在构造器中调用基类构造器来执行初始化，而基类构造器具有执行基类初始化所需要的所有知识和能力，java会自动在导出类的构造器中插入对基类构造器的调用。
++ 调用基类构造器必须是你在导出类中要做的第一件事情。
++ **组合**：只需要将对象引用置于新类中。
++ **继承**：
++ **代理**：将一个成员对象置于所要构造的类中（就像组合），但与此同时我们在新类中暴露了该成员对象的所有方法（就像继承）
+
+## 名称屏蔽
+
++ 如果java的基类拥有某个已被多次重载的方法名称，那么在导出类中重新定义该方法名称并不会屏蔽其在基类中的任何版本。
++ java SE5新增了@Override注解，如果不留心重载而非覆写了该方法时就会报错。
+
+## 在组合与继承之间的选择】
+
++ 组合技术通常用于想在新类中使用现有类的功能而并非它的接口这种情形。在继承的时候，使用某个现有类，并开发它的一个特殊版本。“是一个”的关系是用继承来表达的，而“有一个”的关系则是组合来表达的。
++ 决定是否使用继承的方法是问自己是否真的需要使用向上转型。
+
+## final关键字
+
++ 一个既是static又是final的域只占据一段不能改变的存储空间。
++ 带有static和final的基本类型全用大写字母命名，并且字与字之间用下划线隔开。
++ 如果类型声明为final，但不是static，并且是运行时才随机生成的话，那么每次新建一个对象都会有一个不可以改变的值，如果它还是static的话，那么不管新建多少个对象，它都是只有一个值。
++ final用于变量时，指的是无法将变量指向另外一个新的对象，但是对象是可以改变的。
++ java允许生成空白final，比如写成“private final int i；”，然后可以在构造函数内给其初始值（每个构造函数都需要给值），这样可以根据不同的对象生成不同的恒定值。
++ 方法参数里用到final传递对象可以使得你在方法内部能读取参数，但无法更改，这一特性主要用来向匿名内部类传递参数。
++ **final方法** 使用final方法的原因有两个：禁止覆盖；过去是因为效率，但现在的虚拟机已经可以自己探测到这些情况，并且程序如果速度很慢，使用final关键字来修复是难以奏效的。
++ 类中的所有private方法都隐式地指定为final的。如果你试图去覆盖一个private方法，似乎是奏效的，而且编译器也不会给出错误信息，但是覆盖的概念是必须能将一个对象向上转型为它的基本类型并调用相同的方法，所以这种情况实际上是新加了一个方法，而不是覆盖。
++ 为一个类添加final关键字的意思是不允许别人继承该类，至于final类里的成员可以根据个人意愿选择是final或者不是，并且final类的方法都隐式地设置为了final，额外加final不会有任何含义。
+
+## 初始化及类的加载
+
++ 构造器也是static成员，尽管static关键字没有显示地写出来，因此更确切地讲，类是其任何static成员被访问时加载的。
+```java
+class Insect {
+    private int i = 9;
+    protected int j;
+    Insect() {
+        System.out.println("i="+i+",j="+j);
+        j = 39;
+    }
+    private static int x1 = printInt("static Insect.x1 initialized");
+    static int printInt(String s) {
+        System.out.println(s);
+        return 47;
+    }
+}
+class  Beetle extends Insect {
+    private int k = printInt("Beetle.k initialized");
+    public Beetle() {
+        System.out.println("k="+k);
+        System.out.println("j="+j);
+    }
+    private static int x2 = printInt("static Beetle.x2 initialized");
+    public static void main(String[] args) {
+        System.out.println("Beetle constructor");
+        Beetle b = new Beetle();
+    }
+}
+//结果
+static Insect.x1 initialized
+static Beetle.x2 initialized
+Beetle constructor
+i=9,j=0
+Beetle.k initialized
+k=47
+j=39
+//创建子类对象时会调用父类的构造函数
+```
+
+
+
+

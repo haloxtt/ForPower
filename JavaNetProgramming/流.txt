@@ -1,0 +1,57 @@
+1.JAVA的I/O建立在流（stream）之上。
+2.过滤器（filter）流可以串链到输入流或输出流上，读写数据时，过滤器可以修改数据（例如，通过加密或者压缩），或者提供额外的方法，将读/写的数据转换为其他的格式，例如，java.io.DataOutputStream类就提供了一个方法，可以将int转为4字节，并把这些字节写入底层的输出流。
+3.阅读器（reader）和书写器（writer）可以串链到输入流和输出流上，允许程序读/写文本而不是字节，阅读器和书写器可以处理很多字符编码，包括UTF-8和SJIS等。
+4.流是同步的。当一个线程请求一个流读/写一段数据时，在做任何其他操作前，它要等待所读/写的数据。JAVA还支持使用通道和缓冲区的非阻塞I/O/。非阻塞I/O适用于高吞吐量的应用程序（如web服务器）。
+5.java的基本输出流是java.io.OutputStream,基本方法包括：
+public abstract void write(int b) throws IOException
+public void write(byte b[]) throws IOException
+public void write(byte b[], int off, int len) throws IOException
+public void flush() throws IOException
+public void close() throws IOException
+注意:write(int b）方法实际会写入一个无符号字节，JAVA没有无符号字节，所以这里用int代替，当使用此方法将int写入一个网络连接时，线缆上只会放八个二进制位，如果将一个超出0-255的int传入write（int b），将写入这个数的最低字节，其他三字节将被忽略（这正是将int强制转换为byte的结果，在极少数的情况下，一些第三方类在写入超出0-255的值时，可以选择抛出IllegalArgumentException异常或者总是写入255，所以要避免写超出0-255的int）
+6.流出以太网卡的每个TCP分片包含至少40字节的开销用于路由和纠错，因此，大多数TCP/IP实现都会在某种程度上缓存数据，或者经过了一定的时间，才将所累积的数据发送到目的地。不过，如果有很多字节要发送，则一次全部发送更好，比如使用write(byte b[])和write(byte b[], int off, int len)方法。
+7.流可以通过将BufferedOutputStream或BufferedWriter串链到底层流上来实现，flush（）方法可以强迫缓冲的流发送数据，即使缓冲区还没有满，以此来打破某种死锁状态。
+8.在关闭流之前立即刷新输出所有流非常重要！！！（它本身也是一个低成本的操作）否则可能会导致在缓冲区的数据丢失。当结束一个流操作时，需要调用close（）方法将其关闭（通常放在finally块中，为避免空指针异常，在关闭流之前需检查流变量是否为null），否则可能会导致文件句柄，网络端口等其他资源的泄漏。
+9.try(OutputStream out = new FileOutputStream("/temp/data.txt")){
+	//处理输出流
+	} catch (IOException ex){
+	System.err.println(ex.getMessage);
+	}
+	以上代码在java7引入了“带资源的try”构造之后使用，这种写法不需要finally字句来关闭流，因为java会对所有AutoCloseable对象自动调用close（）。
+10.java的基本输入类是java.io.InputStream。
+基本方法包括：
+public abstract int read() throws IOException;
+public int read(byte b[]) throws IOException；
+ public int read(byte b[], int off, int len) throws IOException；
+ public long skip(long n) throws IOException；
+ public int available() throws IOException ；
+ public void close() throws IOException；
+ InputStream的子类使用这些方法从某种特定的介质中读取数据。例如，FileInputStream从文件中读取数据，TelnetInputStream从网络链接中读取数据，ByteArrayInputStream从字节数组中读取数据。
+ 11.InputStream的基本方法是没有参数的read（）方法，这个方法从输入流的源中读取1字节数据，作为一个0-255的int返回，流的结束通过返回-1来表示。read（）方法会等待并阻塞其后任何代码的执行，直到有1字节的数据可供读取，所以如果程序在做其他重要工作，尽量将I/O放在单独的线程中。 
+ 三个read（）方法都会返回-1表示流的结束，如果流已结束，而又没有读取的数据，多字节read（）方法会返回这些数据，直到缓冲区清空，其后任何一个read（）方法调用会返回-1.
+ 12.可以使用available（）方法来确定不阻塞的情况下有多少字节可以读取，它会返回可以读取的 最少 字节数。
+ skip（）方法可以跳过数据不进行读取，但与读取文件相比较，在网络链接中的作用不大。
+ 输入流还有三个不常用的方法：
+ public synchronized void mark(int readlimit)；
+ public synchronized void reset() throws IOException；
+ public boolean markSupported()；
+ 为了重新读取数据，要用mark（）方法标记流的位置。在以后的某个时刻，可以用reset（）方法把流重置到之前标记的位置。可以重置的字节数由mark（）的readAheadLimit参数确定，如果重置太远会抛出IOException异常（标记和重置通常通过标记位置之后的所有字节存储在一个内部缓冲区中来实现，要确定输入流是否支持标记和重置可以通过markSupported（）方法来确定（true or false），如果流不支持，mark（）什么也不会做，而reset（）会抛出IOException异常。）。
+ 13.过滤器流：JAVA提供了很多过滤器类，可以附加到原始流中，在原始字节和各种格式之间来回转换，过滤器有两个版本，过滤器流以及阅读器和书写器，过滤器流仍然主要将原始数据作为字节处理，例如通过压缩数据或解释为二进制数字，阅读器和书写器处理多种编码文本的特殊情况，如UTF-8和ISO 8859-1等。
+ 14.过滤器串链时，大多数情况下，应该只使用链中最后一个过滤器进行实际的读/写。如果混合调用同一个源中的不同流，可以会违反过滤器流的一些隐含的规定，要想在编写代码时尽量不引入这种bug，可以有意地重写底层输入流得引用，如：
+			InputStream in = new FileInputStream（“data.txt”）
+			in = new BufferedInputStream(in);
+	这两行代码可以让底层的文件输入流无法访问，所以就不会不小心读取这个流而破坏缓冲区，如果必须使用超类中没有声明的过滤器流的其他方法，可以直接在一个流中构建另外一个流。例如：
+	DataOutputStream dout = new DataOutoutStream(
+							new BufferedOutputStream (
+							new FileOutputStream("data.txt")
+							)
+							);
+	
+15。缓冲流：缓冲网络输出通常会带来巨大的性能提升。
+16。BufferedInputStream类也有一个作为缓冲区的名为buf的保护字节数组，当调用某个流的read（）方法时，它首先尝试从缓冲区获取获得请求的数据，只有当缓冲区没有数据时，流才从底层的源中读取尽可能多的数据。
+17.BufferedInputStream有两个构造函数，BufferedOutputStream也一样
+public BufferedInputStream(InputStream in)
+public BufferedInputStream(IntputStream in,int bufferSize)
+public BufferedOutputStream(OutputStream out)
+public BufferedOutputStream(OutputStream out,int bufferSize)
+如果不指定缓冲区中的字节数，输入流缓冲区大小会默认设置为2048字节，输出流缓冲区大小设置为512字节，缓冲区的理想大小取决于所缓冲的流是何种类型的，更大更宽的网络倾向于使用更大的包，不过TCP片通常不会大于1K。
