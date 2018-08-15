@@ -156,6 +156,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
 ### resize()方法
 
 + 下面我们一个一个分析上面提到的方法。首先是resize()方法，resize()在哈希表为null时将会初始化，但是在已经初始化后就会进行容量扩展。下面是resize()的具体实现：
+
 ```java
     final Node<K,V>[] resize() {
         Node<K,V>[] oldTab = table;
@@ -268,8 +269,9 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
         return newTab;
     }
 ```
-+ 从上面可以看到，resize()首先获取新容量以及新阈值，然后根据新容量创建新表。如果是扩容操作，则需要进行rehash操作，通过e.hash&oldCap将链表分为两列，更好地均匀分布在新表中。 
-当头节点是TreeNode时，将调用TreeNode的split方法将红黑树复制到新表中，代码实现如下：
+
++ 从上面可以看到，resize()首先获取新容量以及新阈值，然后根据新容量创建新表。如果是扩容操作，则需要进行rehash操作，通过e.hash&oldCap将链表分为两列，更好地均匀分布在新表中。 当头节点是TreeNode时，将调用TreeNode的split方法将红黑树复制到新表中，代码实现如下：
+
 ```java
     final void split(HashMap<K,V> map, Node<K,V>[] tab, int index, int bit) {
             TreeNode<K,V> b = this;//就是上面的头结点e
@@ -327,8 +329,8 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
             }
         }
 ```
-+ TreeNode的split方法首先将头节点从头开始遍历，区分出两条单链表，再根据如果节点数小于等于6，那么将单链表的每个TreeNode转换成Node节点；否则将单链表转换成红黑树结构。 
-至此，resize()方法结束。需要注意的是rehash时，由于容量扩大一倍，本来一条链表有可能会分成两条链表，而如果将红黑树结构复制到新表时，有可能需要完成红黑树到单链表的转换。
+
++ TreeNode的split方法首先将头节点从头开始遍历，区分出两条单链表，再根据如果节点数小于等于6，那么将单链表的每个TreeNode转换成Node节点；否则将单链表转换成红黑树结构。 至此，resize()方法结束。需要注意的是rehash时，由于容量扩大一倍，本来一条链表有可能会分成两条链表，而如果将红黑树结构复制到新表时，有可能需要完成红黑树到单链表的转换。
 
 ### treeifyBin()方法
 
@@ -369,6 +371,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
 ### get(K k)操作
 
 + get(K k)根据键得到值，如果值不存在，那么返回null。其实现如下：
+
 ```java
     public V get(Object key) {
         Node<K,V> e;
@@ -400,18 +403,20 @@ final Node<K,V> getNode(int hash, Object key) {
             }
         }
         return null;
-    } 
+    }
 ```
-+ 从上面代码可以看到getNode()方法中有多种情况： 
-1. 表为空或表的长度为0或表中不存在key对应的hash值桶，那么返回null 
-2. 如果表中有key对应hash值的桶，得到首节点，如果首节点匹配，那么直接返回； 
-3. 如果首节点不匹配，并且没有后续节点，那么返回null 
-4. 如果首节点有后续节点并且首节点是TreeNode,调用getTreeNode方法寻找节点 
+
++ 从上面代码可以看到getNode()方法中有多种情况：
+1. 表为空或表的长度为0或表中不存在key对应的hash值桶，那么返回null
+2. 如果表中有key对应hash值的桶，得到首节点，如果首节点匹配，那么直接返回；
+3. 如果首节点不匹配，并且没有后续节点，那么返回null
+4. 如果首节点有后续节点并且首节点是TreeNode,调用getTreeNode方法寻找节点
 5. 如果首节点有后续节点并且是链表结构，那么从前往后遍历，一旦找到则返回节点，否则返回null
 
 ### remove()操作
 
 + remove(K k)用于根据键值删除键值对，如果哈希表中存在该键，那么返回键对应的值，否则返回null。其实现如下：
+
 ```java
     public V remove(Object key) {
         Node<K,V> e;
@@ -470,16 +475,14 @@ final Node<K,V> removeNode(int hash, Object key, Object value,
             }
         }
         return null;
-    }  
+    }
 ```
-+ 从上面的代码可以看出，removeNode()方法首先是找到待删除的节点，如果存在待删除节点，接下来再执行删除操作。查询时流程与getNode()方法的流程类似，只不过多了在遍历链表时还需要保存前驱节点，因为后面删除时要用到（单链表结构）。删除节点时就比较简单了，三种情况三种处理方式,分别是： 
-1. 如果待删除节点是TreeNode，那么调用removeTreeNode()方法 
+
++ 从上面的代码可以看出，removeNode()方法首先是找到待删除的节点，如果存在待删除节点，接下来再执行删除操作。查询时流程与getNode()方法的流程类似，只不过多了在遍历链表时还需要保存前驱节点，因为后面删除时要用到（单链表结构）。删除节点时就比较简单了，三种情况三种处理方式,分别是：
+1. 如果待删除节点是TreeNode，那么调用removeTreeNode()方法
 2. 如果待删除节点是Node，并且待删除节点就是头节点，那么将头节点更改为原有节点的下一个节点就可以了 
 3. 如果待删除节点是Node且待删除节点不是头节点，那么将遍历过程中保存的前驱节点p的后继节点设为node的后继节点就可以了
 
 ## HashMap总结
 
 + 至此，我们分析完了HashMap的主要方法：构造器、put、get和remove。只需要明白JDK1.8的HashMap底层结构，那么就很好理解了。需要注意的是什么时候应该将链表结构转换成红黑树结构，什么时候又应该将红黑树结构重新转换成链表结构，本文没有具体解释有关红黑树的结构，但是这并不影响理解HashMap的基本原理。
-
-
-

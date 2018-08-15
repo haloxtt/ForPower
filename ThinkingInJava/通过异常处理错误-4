@@ -1,0 +1,82 @@
+
+## 通过异常处理错误
+
++ 抛出异常之后发生的一些事情，实现会在堆上new一个异常对象，如果当前执行路径不能继续往下走了的话，就会从当前环境弹出对异常对象的的引用，此时，异常处理机制接管程序，并寻找一个恰当的地方接管程序。
++ 异常处理的两种理念，一直是终止模型，一种是恢复模型，java如果想实现恢复模型可以遇见错误时不抛出异常，而是调用方法来修正错误，或者把try放在while循环里，知道拿到满意的结果。
++ sudo chown -R xietaotao:/usr/local/lib/node_modules给某个用户管理员权限
++ sudo su -  切换到root
++ su - 用户名(-和用户名之间要有空格)，完成身份切换
++ 可以通过继承某个异常类来定义自己的异常（可以加入额外的构造器和成员）。
+
+```java
+    public class XttException extends Exception{
+    public XttException(String str) {
+        super(str);
+    }
+}
+
+public class InheritingException {
+    public void  f() throws XttException {
+        System.out.println("throw xttException from f()");
+        throw new XttException("f is wrong");
+    }
+
+    public static void main(String[] args) {
+        InheritingException sed = new InheritingException();
+        try {
+            sed.f();
+        } catch (XttException e) {
+            System.out.println("Caught it");
+            e.printStackTrace(System.out);
+        }
+    }
+}
+
+```
+
++ 可以通过上述方式将异常信息输出到System.err，System.out在JVM和操作系统都具有缓存功能，就是你输出的东西不一定实时输出，有时候会积攒到一定数量才会输出，System.err会实时输出，单独使用的话可能感觉不到，如果两种方式混合使用就会发现了。
++ printStackTrace()方法所提供的信息可以通过GetStackTrace()来直接访问，这个方法将返回一个由栈轨迹中的元素所构成的数组，其中每一个元素都表示栈中的一帧（白话比如main函数调用了某个方法，初始化了某个值，然后抛出了某个异常）。
++ 可以在catch块里将某个异常再次抛出，重新抛出异常会把异常抛给上一级环境中的异常处理程序，同一个try块的后续catch块将会忽略。
++ 抛出异常的printStackTrace方法显示的还是原来的抛出点的调用栈信息，如果要更新为新抛出点的，可以 throw (Exception)e.fillInStackTrace() 这样写。
++ 可能捕获异常后又抛出一种新的异常，这么做的话，得到的效果类似使用fillInStackTrace()，有关原来异常发生点的信息全丢失，剩下的是与新的抛出点有关的信息。
+```java
+class MyException2 extends Exception{
+    MyException2(Throwable throwable){
+        super(throwable);
+    }
+    MyException2(){
+        super();
+    }
+}
+
+catch (MyException1 e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            throw new MyException2(e);
+        }
+
+        
+```
+
++ 上述写法可以实现异常链。
++ 如果不捕获运行时异常，那么会自动在程序退出时调用printStackTrace。
++ 常见的运行时异常有：
+1. ClassCastException(类转换异常)
+2. IndexOutOfBoundsException(数组越界)
+3. NullPointerException(空指针)
+4. ArrayStoreException(数据存储异常，操作数组时类型不一致)
+5. 还有IO操作的BufferOverflowException异常
++ 常见的非运行时异常有IO异常和sql异常。
++ finally块可能会让异常丢失(比如在finally里return)。
++ 异常在子父类覆盖中的体现 
+1. 子类在覆盖父类时，如果父类的方法抛出异常，那么子类的覆盖方法，只能抛出父类的异常或者该异常的子类 
+2. 如果父类方法抛出多个异常，那么子类在覆盖该方法时，只能抛出父类异常的子集 
+3. 如果父类或者接口的方法中没有异常抛出，那么子类在覆盖方法时，也不能抛出异常 
+3. 如果子类方法发生了异常，就必须要进行try处理，绝对不能抛 
+
++ 对于在构造阶段可能会抛出的异常，并且要求清理的类，最安全的做法是使用嵌套的try字句。
++ 异常匹配的时候是按照就近原则，派生类的对象也能匹配。
++ throw new RuntimeException(e) 可以把被检查的异常转换成不受检查的异常，保证不丢失任何原始异常的信息。
++ getCause()可以捕获异常。
+
+

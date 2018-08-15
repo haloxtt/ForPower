@@ -430,6 +430,7 @@ public boolean addAll(int index, Collection<? extends E> c) {
                 //一旦匹配，调用unlink()方法和返回true
                 if (x.item == null) {
                     unlink(x);
+
                     return true;
                 }
             }

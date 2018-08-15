@@ -9,6 +9,7 @@
 ### LinkedHashMap中的节点
 
 + LinkedHashMap中的节点类是Entry，继承自HashMap中的Node节点，在Node节点的基础上增加了before和after两个节点，定义如下：
+
 ```java
      static class Entry<K,V> extends HashMap.Node<K,V> {
         Entry<K,V> before, after;
@@ -17,11 +18,13 @@
         }
     }
 ```
+
 + 其结构如下图： 
+
 ![LinkedHashMap结构](http://img.blog.csdn.net/20170629201744177?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvcXFfMTk0MzEzMzM=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
 
 ### LinkedHashMap中的重要字段
- 
+
 ```java
     transient LinkedHashMap.Entry<K,V> head;
 
@@ -36,11 +39,13 @@
      */
     final boolean accessOrder;
 ```
+
 + 由于LinkedHashMap使用双端链表维持所有节点，所以有head和tail两个字段，表示链表的头节点和尾节点。 accessOrder表示迭代顺序，true表示访问顺序，false表示插入顺序。
 
-## 构造方法
+### LinkedHashMap构造方法
 
 + LinkedHashMap的构造方法主要也是使用父类的构造方法并将accessOrder赋值，默认为false。accessOrder为final字段，值只能在构造方法中传入。构造方法如下：
+
 ```java
     public LinkedHashMap(int initialCapacity, float loadFactor) {
         super(initialCapacity, loadFactor);
@@ -71,6 +76,7 @@
         this.accessOrder = accessOrder;
     }
 ```
+
 + 可以看到LinkedHashMap也存在初始容量和加载因子两个影响LinkedHashMap的性能参数。
 
 ## 基本操作
@@ -78,6 +84,7 @@
 ### PUT操作
 
 + LinkedHashMap的put方法继承自HashMap，但是内部很多方法都自己实现了，下面我们以put方法开始说明。
+
 ```java
     public V put(K key, V value) {
         return putVal(hash(key), key, value, false, true);
@@ -153,11 +160,13 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
         }
     }
 ```
+
 + 从上面代码可以看到，newNode()中方法中首先创建了一个以null为节点的Entry节点，然后调用linkNodeLast()方法将该结点添加到双端链表的尾节点。
 
 ### afterNodeInsertion(boolean evict)实现
 
 + afterNodeInsertion方法的evict参数如果为false，表示哈希表处于创建模式。只有在使用Map集合作为构造器创建LinkedHashMap或HashMap时才会为false，使用其他构造器创建的LinkedHashMap，之后再调用put方法，该参数均为true。LinkedHashMap的afterNodeInsertion()实现如下：
+
 ```java
     void afterNodeInsertion(boolean evict) { // possibly remove eldest
         LinkedHashMap.Entry<K,V> first;
@@ -167,18 +176,22 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
         }
     }
 ```
-+ 从上面可以看到，如果要进入到if语句块中需要同时满足三个条件： 
-1. evict为true。只要不是构造方法中的插入Map集合，evict就为true，否则为false 
+
++ 从上面可以看到，如果要进入到if语句块中需要同时满足三个条件：
+1. evict为true。只要不是构造方法中的插入Map集合，evict就为true，否则为false
 2. first!=null。表明表不为空，按理来说，当调用该方法时，哈希表不会为空 
 3. removeEldestEntry()方法返回true。该方法删除删除最老的节点
 
 + LinkedHashMap的removeEldestEntry()方法的默认实现返回false，如下：
+
 ```java
      protected boolean removeEldestEntry(Map.Entry<K,V> eldest) {
         return false;
     }
 ```
+
 + 所以上面就不会进入到if语句块中。removeElestEntry用于定义删除最老元素的规则。一旦需要删除最老节点，那么将会调用removeNode删除节点。 举个例子，如果一个链表只能维持100个元素，那么当插入了第101个元素时，以如下方式重写removeEldestEntry的话，那么将会删除最老的一个元素，如下：
+
 ```java
     public boolean removeEldestEntry(Map.Entry<K,V> eldest){
        return size()>100;
@@ -188,6 +201,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
 ### afterNodeAccess(Node e)实现
 
 + afterNodeAccess()在键值重复时，会调用该方法，其中参数该表示该节点。该方法用于再accessOrder为true时将节点移到最后，其实现如下：
+
 ```java
     void afterNodeAccess(Node<K,V> e) { // move node to last
         LinkedHashMap.Entry<K,V> last;
@@ -215,7 +229,8 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
         }
     }
 ```
-+ 从上面代码可以看到，如果想进入到if语句块，那么必须同时满足两个条件： 
+
++ 从上面代码可以看到，如果想进入到if语句块，那么必须同时满足两个条件：
 1. accessOrder为true。为true只能在三个参数的构造方法中指定accessOrder，表明按照访问顺序管理节点。那么当键相同时，就相当于一次访问，所以可能需要将访问的节点移到双端链表的尾端。 
 2. 如果当前节点不是尾节点。如果已经是尾节点，那么无须就行移动。
 
@@ -224,6 +239,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
 ### get()操作
 
 + LinkedHashMap的get方法用于根据键得到值，如果哈希表中不包含该键，那么返回null，其实现如下：
+
 ```java
      public V get(Object key) {
         Node<K,V> e;
@@ -236,13 +252,15 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
         return e.value;
     }
 ```
-+ 从上面代码可以看到，get()方法分为2步： 
-1. 调用getNode()方法得到键对应的节点。如果节点为null，表明哈希表中不存在该键，那么返回null 
+
++ 从上面代码可以看到，get()方法分为2步：
+1. 调用getNode()方法得到键对应的节点。如果节点为null，表明哈希表中不存在该键，那么返回null
 2. 如果哈希表中存在该键并且accessOrder为true，那么调用afterNodeAccess(e)将节点移到双端链表的尾部
 
 ### remove()操作
 
 + LinkedHashMap的remove()方法根据键删除节点，如果哈希表中不存在键值，那么返回null。LinkedHashMap的remove()方法继承自HashMap的rmeove()方法，在将节点从链表或红黑树中移除后，调用afterNodeRemoval(Node e)方法，LinkedHashMap实现了该方法，其实现如下：
+
 ```java
     // e表示待删除的节点
     void afterNodeRemoval(Node<K,V> e) { // unlink
@@ -259,18 +277,22 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
             a.before = b;
     }
 ```
+
 + 从上面可以看到，afterNodeRemoval()方法主要就是将节点从双端链表中移除。
 
 ### keySet()操作
 
 + LinkedHashMap的keySet()方法用于返回该哈希表的键的一个Set集合。其实现如下：
+
 ```java
     public Set<K> keySet() {
         Set<K> ks;
         return (ks = keySet) == null ? (keySet = new LinkedKeySet()) : ks;
     }
 ```
+
 + 从上面可以看到，该方法返回了一个LinkedKeySet的对象，该对象是一个Set，继承自AbstractSet类，其实现如下：
+
 ```java
     final class LinkedKeySet extends AbstractSet<K> {
         public final int size()                 { return size; }
@@ -298,7 +320,9 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
         }
     }
 ```
+
 + 这里我们具体看一下iterator()方法，返回的是一个LinkedKeyIterator对象，该类的定义如下：
+
 ```java
     final class LinkedKeyIterator extends LinkedHashIterator
         implements Iterator<K> {
@@ -344,7 +368,9 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
         }
     }
 ```
+
 + 从上面可以看到LinkedKeyIterator继承自LinkedHashIterator，而LinkedHashIterator有三个子类，分别是LinkedKeyIterator、LinkedValueIterator、LinkedEntryIterator，从类名可以看出这三个类分别用于迭代键、值以及键值对。另外的两个雷LinkedValueIterator和LinkedEntryIterator的实现和LinkedKeyIterator的实现基本相同，只是类名不同，从下面的代码可以看出：
+
 ```java
     final class LinkedValueIterator extends LinkedHashIterator
         implements Iterator<V> {
@@ -356,11 +382,13 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
         public final Map.Entry<K,V> next() { return nextNode(); }
     }
 ```
+
 + 所以，LinkedHashIterator类是一个关键的类，其构造方法中保存了当前的modCount以及将next指针指向双端链表的头指针，其nextNode()方法就是按照双端链表从头往后遍历的方式操作的，而remeve()方法也是调用了removeNode()删除当前节点。
 
 ### values()方法
 
 + values()方法用于返回哈希表中的所有值，由于哈希表中的键是唯一的，所以keySet()的返回值是一个Set，而哈希表中的值是允许重复的，所以返回值是一个Collection，其实现如下：
+
 ```java
      public Collection<V> values() {
         Collection<V> vs;
@@ -389,6 +417,7 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
         }
     }
 ```
+
 + 可以看到，LinkedValues类继承自AbstractCollection，重写了几个关键方法。其中iterator()方法返回是LinkedValueIterator，上面已经提过了，该类将按照双端链表的中维持的节点顺序遍历节点，返回值。
 
 ### entrySet()方法
@@ -397,10 +426,6 @@ LinkedHashMap的entrySet()方法用于返回的是每一对Entry。由于该方�
 
 ## 总结
 
-LinkedHashMap在HashMap的基础上使用一个双端链表维持有序的节点。这个有序并不是通常意义上的大小关系，默认情况下使用的插入顺序，意味着新插入的节点被添加到双端链表的尾部，而一旦使用了访问顺序，即accessOrder为true，那么在访问某一节点时，会将该节点移到双端链表的尾部。正因为此特性，可以在LinkedHashMap中使用三个参数的构造方法并制定accessOrder为true将LinkedHashMap实现为LRU缓存，这样经常访问的就会被移到链表的尾部，而越少访问的就在链表的头部。
-+ 由于双端链表维持了所有的节点，所以keySet()、values()以及entrySet()得到的键、值、键值对都是按照双端链表中的节点顺序的。 
++ LinkedHashMap在HashMap的基础上使用一个双端链表维持有序的节点。这个有序并不是通常意义上的大小关系，默认情况下使用的插入顺序，意味着新插入的节点被添加到双端链表的尾部，而一旦使用了访问顺序，即accessOrder为true，那么在访问某一节点时，会将该节点移到双端链表的尾部。正因为此特性，可以在LinkedHashMap中使用三个参数的构造方法并制定accessOrder为true将LinkedHashMap实现为LRU缓存，这样经常访问的就会被移到链表的尾部，而越少访问的就在链表的头部。
++ 由于双端链表维持了所有的节点，所以keySet()、values()以及entrySet()得到的键、值、键值对都是按照双端链表中的节点顺序的。
 + 另外尤其需要注意的是，在put、get、remove方法中涉及到的双端链表的操作，由于都是引用的更改，所以并没有影响到HashMap的底层结构：数组+链表+红黑树。
-
-
-
-

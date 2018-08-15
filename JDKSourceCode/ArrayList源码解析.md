@@ -13,7 +13,7 @@
 
 ```java
     public class ArrayList<E> extends AbstractList<E> implements List<E>, RandomAccess, Cloneable, Serializable {  
-        // 序列化id
+        // 序列化id  
         private static final long serialVersionUID = 8683452581122892189L;  
         // 默认初始的容量  
         private static final int DEFAULT_CAPACITY = 10;  
@@ -127,8 +127,7 @@
     }
 
     /**
-     *   确保添加的元素有地方存储，当第一次添加元素的时候this.size+1 的值是1，所以第一次添加的时候会将当   
-     *   前 elementData 数组的长度变为10：
+     *   确保添加的元素有地方存储，当第一次添加元素的时候     *   this.size+1 的值是1，所以第一次添加的时候会将当   *    前 elementData 数组的长度变为10：
     */
    private static int calculateCapacity(Object[] elementData, int minCapacity) {
         if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
@@ -344,7 +343,7 @@
 
 ## iterator方法
 
-+ ArrayList可以得到两种迭代器，iterator()方法和listIterator()方法。iterator()中返回的迭代器只能从开始往后遍历，而listIterator()中返回的迭代器不止能从后往前遍历，还能从指定位置开始遍历。在操作迭代器时，中途调用了ArrayList的其他改变结构的方法，那么将会抛出异常，这就是所谓的fail-fast机制。在前面的很多方法中，都出现了modCOunt变量，该变量就是用于处理fail-fast机制的。在初始化迭代器时保存当前的modCount，然后在每个操作时检查当前的modCount是否与初始化时的一致，如果不一致，说明进行了改变结构的操作，那么将会抛出异常。
++ ArrayList可以得到两种迭代器，iterator()方法和listIterator()方法。iterator()中返回的迭代器只能从开始往后遍历，而listIterator()中返回的迭代器不止能从后往前遍历，还能从指定位置开始遍历。在操作迭代器时，允许中途调用了ArrayList的其他改变结构的方法，那么将会抛出异常，这就是所谓的fail-fast机制。在前面的很多方法中，都出现了modCOunt变量，该变量就是用于处理fail-fast机制的。在初始化迭代器时保存当前的modCount，然后在每个操作时检查当前的modCount是否与初始化时的一致，如果不一致，说明进行了改变结构的操作，那么将会抛出异常。
 ```java
     public Iterator<E> iterator() {
         return new Itr();
@@ -547,7 +546,6 @@
 + contains(E)需要遍历数组
 + 使用iterator遍历可能会引发多线程异常
 + 遍历list删除时可以倒叙遍历，然后通过传对象删除。或者：
-
 ```java
    for (Iterator<String> ite = list.iterator(); ite.hasNext();) {
             String str = ite.next();
@@ -557,9 +555,7 @@
             }
         }
 ```
-
 + 每用一次remove就要用一次next，原因看源码。
-+ System.arraycopy>clone>Arrays.copyOf>for
 
 
 
