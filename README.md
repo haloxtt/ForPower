@@ -58,3 +58,49 @@
 53. TwoSortArray.java.两个有序数组再排序
 54. TwoSumClass.java。给定一个整数数组和一个目标值，找出数组中和为目标值的两个数。
 55. TwoSumLinked.java。给定两个链表分别代表两个非负整数，链表的每个结点分别存储整数的每位数字，且是逆序存储
+
+## DailyNotes
+
+一些日常笔记
+
++ SpringMvc.md.
++ git教程.md.
++ 日常笔记.txt
+
+## JDKSourceCode
+
+一些常见集合类源码分析。
+
++ ArrayList源码解析.md
++ ArrayList源码解析md
++ HashMap源码解析.md
++ LinkedHashMap源码分析.md
++ LinkedList.md
++ Untitled-8.md 数据结构相关整理。
+
+## JavaNetProgramming
+
+《java网络编程》 部分笔记
+
++ 基本网络概念.txt
++ 日常笔记.md
++ 流.md
++ 流.txt
+
+## ThinkingInJava
+
+《JAVA编程思想》 部分笔记整理
+
++ 对象导论.txt
++ JAVA基本数据类型.md
++ 内部类.md
++ 初始化和清理2.md
++ 复用代码md
++ 多态.md
++ 持有对象.md
++ 接口.md
++ 操作符.md
++ 方法.md
++ 通过异常处理错误-4
+
+
