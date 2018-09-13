@@ -51,9 +51,10 @@
 46. SelectSort.java。选择排序
 47. ShareWine.java。泊松分酒
 48. ShellSort.java。希尔排序
-49. SolveNQueens.java。八皇后问题
-50.
-51.
-52.
-53.
-54.
+49. SolveNQueens.java。N皇后问题
+50. StrStr.java。LeetCode 28题 实现 strStr() 函数。
+51. ThreeSumClosest.java。三数之和（在数组中找最相近的）
+52. TotalNQueens.java. N皇后问题
+53. TwoSortArray.java.两个有序数组再排序
+54. TwoSumClass.java。给定一个整数数组和一个目标值，找出数组中和为目标值的两个数。
+55. TwoSumLinked.java。给定两个链表分别代表两个非负整数，链表的每个结点分别存储整数的每位数字，且是逆序存储
