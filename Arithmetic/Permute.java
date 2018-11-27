@@ -1,25 +1,27 @@
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * LeetCode 46
- *
- 给定一个没有重复数字的序列，返回其所有可能的全排列。
-
- 示例:
-
- 输入: [1,2,3]
- 输出:
- [
- [1,2,3],
- [1,3,2],
- [2,1,3],
- [2,3,1],
- [3,1,2],
- [3,2,1]
- ]
- */
+ * @description:46. 全排列
+ * @author: xietaotao
+ * @create: 2018-11-05 17:04
+ **/
 public class Permute {
     public List<List<Integer>> permute(int[] nums) {
+        Map<Integer,Boolean> map = new HashMap();
+        for (int i = 0; i < nums.length; i++) {
+            map.put(nums[i],true);
+        }
         return null;
+    }
+
+    public static void main(String[] args) {
+        Permute permute = new Permute();
+        int[] nums = {1,2,3};
+        List<List<Integer>> list = permute.permute(nums);
+        for (List l : list) {
+            System.out.println(l.toString());
+        }
     }
 }
