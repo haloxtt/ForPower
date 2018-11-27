@@ -59,6 +59,17 @@
 54. TwoSumClass.java。给定一个整数数组和一个目标值，找出数组中和为目标值的两个数。
 55. TwoSumLinked.java。给定两个链表分别代表两个非负整数，链表的每个结点分别存储整数的每位数字，且是逆序存储
 
+### 双指针类型的题目
+
+56. 有序数组的 Two Sum Leetcode ：167
+57. 两数平方和  LeetCode 633
+58. 反转字符串中的元音字符  LeetCode 345
+59. 回文字符串  LeetCode 680
+60. 归并两个有序数组 LeetCode 88
+61. 判断链表是否存在环 LeetCode141
+62. 最长子序列 LeetCode524
+
+
 ## DailyNotes
 
 一些日常笔记
